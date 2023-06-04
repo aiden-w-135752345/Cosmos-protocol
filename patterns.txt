@@ -1,8 +1,14 @@
 each UDP packet contains multiple Artemis payloads:
 
 Initial payloads:
-c2s 8f ff {time in ms: u16be} 82 ff 00 01 00 00 ff ff 00 00 05 78 00 00 10 00 00 00 00 02 00 00 1c 20 00 00 07 08 00 00 13 88 00 00 00 02 00 00 00 02 {4 random bytes} 00 00 00 00
-s2c 83 ff {counter: u16be} 00 00 00 00 00 00 05 78 00 00 10 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 13 88 00 00 00 02 00 00 00 02 {same 4 bytes}
+c2s 8f ff {time in ms: u16be}
+c2s 82 ff 00 01 00 00 ff ff 00 00 05 78 00 00 10 00 00 00 00 02 00 00 1c 20 00 00 07 08 00 00 13 88 00 00 00 02 00 00 00 02 {4 random bytes} 00 00 00 00
+s2c 83 ff 00 01 00 00 00 00 00 00 05 78 00 00 10 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 13 88 00 00 00 02 00 00 00 02 {same 4 bytes}
+
+index for s2c 85ff/8aff payloads starts at 2
+index for c2s 84ff/85ff/8aff payloads starts at 2
+index for s2c 85ff/8aff payloads starts at 1
+index for s2c 07000000 payloads starts at 1
 
 Payloads:
 	c2s 00 00
@@ -14,10 +20,10 @@ Payloads:
 	s2c 85 ff {index for s2c 85ff/8aff payloads: u16be}
 	c2s 86 00 {index for c2s 8600 payloads: u16be} {len:u16be} {extended packet data}
 	s2c 8a ff {index for s2c 85ff/8aff payloads: u16be} 00 00 00 00 00 00 00 00
-	c2s 8a ff {index for c2s 85ff/8aff payloads: u16be} 00 00 00 00 00 00 07 08
-	c2s 01 ff {index of previous s2c 85ff/8aff payload: u16be} {a copy of the index} {time of previous s2c 8000 packet in ms: u16be}
+	c2s 8a ff {index for c2s 84ff/85ff/8aff  payloads: u16be} 00 00 00 00 00 00 07 08
+	c2s 01 ff {index of previous s2c 85ff/8aff payload: u16be} {a copy of the index} {time of previous s2c 8000 payload in ms: u16be}
 	s2c 01 00 {index of previous c2s 8600 payload: u16be} {a copy of the index} {time of previous c2s 8000 payload in ms: u16be}
-	s2c 01 ff {index of previous c2s 84ff/85ff/8aff payload: u16be} {a copy of the index} {time of previous c2s 8000 packet in ms: u16be}
+	s2c 01 ff {index of previous c2s 84ff/85ff/8aff payload: u16be} {a copy of the index} {time of previous c2s 8000 payload in ms: u16be}
 	s2c 07 00 00 00 {index for s2c 07000000 payloads: u16be} {len:u16be} {extended packet data}
 
 extended packet data starts with 0a 6a f3 8b:
