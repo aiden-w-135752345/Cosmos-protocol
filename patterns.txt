@@ -1,37 +1,80 @@
 each UDP packet contains multiple Artemis payloads:
 
-Initial payloads:
-c2s 8f ff {time in ms: u16be}
-c2s 82 ff 00 01 00 00 ff ff 00 00 05 78 00 00 10 00 00 00 00 02 00 00 1c 20 00 00 07 08 00 00 13 88 00 00 00 02 00 00 00 02 {4 random bytes} 00 00 00 00
-s2c 83 ff 00 01 00 00 00 00 00 00 05 78 00 00 10 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 13 88 00 00 00 02 00 00 00 02 {same 4 bytes}
-
 index for s2c 85ff/8aff payloads starts at 2
 index for c2s 84ff/85ff/8aff payloads starts at 2
 index for s2c 85ff/8aff payloads starts at 1
-index for s2c 07000000 payloads starts at 1
+index for s2c 0700 payloads starts at 1
+
+Common payload combinations (in the order I saw them)
+c2s 8fff 82ff
+s2c 8000 83ff
+c2s 8000 01ff 85ff
+c2s 8000 8600
+s2c 0000 01ff 0700
+s2c 0000 0100
+s2c 8000 85ff
+c2s 8000 85ff
+c2s 0000 01ff
+s2c 0000 01ff
+s2c 8000 8aff
+c2s 8000 8aff
+s2c 0000 0700
+s2c 0000 01ff 01ff 01ff 01ff
+s2c 0000 01ff 01ff
+s2c 0000 0100 0100 0100
+c2s 8000 84ff
+s2c 9000 83ff
+c2s 9000 01ff 85ff
+c2s 9000 8600
+s2c 1000 01ff 0700
+s2c 1000 0700
+s2c 1000 0100
+s2c 9000 8aff
+c2s 1000 01ff
+c2s 9000 85ff
+s2c 1000 01ff
+c2s 9000 8aff
+s2c 9000 85ff
+c2s 1000 01ff 01ff 01ff 01ff
+s2c 1000 0100 0100
+c2s 9000 84ff
 
 Payloads:
-	c2s 00 00
-	s2c 00 00
-	c2s 80 00 {time in ms: u16be}
-	s2c 80 00 {time in ms: u16be}
-	c2s 84 ff {index for c2s 84ff/85ff/8aff payloads: u16be} 00 00 00 00
-	c2s 85 ff {index for c2s 84ff/85ff/8aff payloads: u16be}
-	s2c 85 ff {index for s2c 85ff/8aff payloads: u16be}
-	c2s 86 00 {index for c2s 8600 payloads: u16be} {len:u16be} {extended packet data}
-	s2c 8a ff {index for s2c 85ff/8aff payloads: u16be} 00 00 00 00 00 00 00 00
-	c2s 8a ff {index for c2s 84ff/85ff/8aff  payloads: u16be} 00 00 00 00 00 00 07 08
-	c2s 01 ff {index of previous s2c 85ff/8aff payload: u16be} {a copy of the index} {time of previous s2c 8000 payload in ms: u16be}
-	s2c 01 00 {index of previous c2s 8600 payload: u16be} {a copy of the index} {time of previous c2s 8000 payload in ms: u16be}
-	s2c 01 ff {index of previous c2s 84ff/85ff/8aff payload: u16be} {a copy of the index} {time of previous c2s 8000 payload in ms: u16be}
-	s2c 07 00 00 00 {index for s2c 07000000 payloads: u16be} {len:u16be} {extended packet data}
+	s2c 0000
+	c2s 0000
+	s2c 0100 {index of previous c2s 8600 payload: u16be} {a copy of the index} {time of previous c2s 8000/9000 payload in ms: u16be}
+	s2c 01ff {index of previous c2s 84ff/85ff/8aff payload: u16be} {a copy of the index} {time of previous c2s 8000/9000 payload in ms: u16be}
+	c2s 01ff {index of previous s2c 85ff/8aff payload: u16be} {a copy of the index} {time of previous s2c 8000/9000 payload in ms: u16be}
+	s2c 0700 00 00 {index for s2c 0700 payloads: u16be} {len:u16be} {extended packet data}
+	s2c 1000
+	c2s 1000
+	s2c 8000 {time in ms: u16be}
+	c2s 8000 {time in ms: u16be}
+	c2s 82ff 00 01 00 00 {ff ff or 00 00} 00 00 05 78 00 00 10 00 00 00 00 02 00 00 1c 20 00 00 07 08 00 00 13 88 00 00 00 02 00 00 00 02 {4 random bytes} 00 00 00 00
+	s2c 83ff 00 01 00 00 {01 01 or 00 00} 00 00 05 78 00 00 10 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 13 88 00 00 00 02 00 00 00 02 {same 4 bytes}
+	c2s 84ff {index for c2s 84ff/85ff/8aff payloads: u16be} 00 00 00 00  # disconnect packet?
+	s2c 85ff {index for s2c 85ff/8aff payloads: u16be}
+	c2s 85ff {index for c2s 84ff/85ff/8aff payloads: u16be}
+	c2s 8600 {index for c2s 8600 payloads: u16be} {len:u16be} {extended packet data}
+	s2c 8aff {index for s2c 85ff/8aff payloads: u16be} 00 00 00 00 00 00 00 00
+	c2s 8aff {index for c2s 84ff/85ff/8aff  payloads: u16be} 00 00 00 00 00 00 07 08
+	c2s 8fff {time in ms: u16be}
+	s2c 9000 {time in ms: u16be}
+	c2s 9000 {time in ms: u16be}
 
 extended packet data starts with 0a 6a f3 8b:
-c2s 23 00 {len:u16le} "client_connected"
-c2s 02 00
-s2c 26 00 01 00 00 00
-s2c 0d 00
-s2c 16 00
-s2c 22 00 00 00 00 00
-s2c 15 00 {len:u16le} {UI type} {len:u16le} {UI text} {len:u16le} {UI ID | "text"} 00 00 00 00 00 00 80 3f 00 00 00 00 00 00 00 00 00 00 00 00
-	{x1 32} {y1 32} {x2 32} {y2 32} 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	c2s 0200
+	s2c 0d00
+	s2c 1500 {len:u16le} {"text"|"checkbox"} {len:u16le} {UI text} {len:u16le} {UI ID | "text"}
+		00 00 00 00 00 00 {80 3f if 1st time, 00 00 otherwise} 00 00 00 00 00 00 00 00 00 00 00 {01 if checked or text, 00 otherwise}
+		{x1 32} {y1 32} {x2 32} {y2 32} 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	s2c 1600
+	c2s 1700 {len:u16le} {UI ID} {len:u16le} "checkbox" # sent when user clicks on a checkbox
+	s2c 2200 00 00 00 00
+	c2s 2300 {len:u16le} {"client_connected"|"entered_options"}
+	s2c 2600 01 00 00 00
+
+UI IDs:
+	normal_helm, normal_weap, normal_sci, normal_comm, normal_engi, normal_main: regular stations
+	special_engi: steveneering
+
